@@ -285,18 +285,23 @@ body[data-ds-dark-theme] [class*="text-gray-11"]:not([role="dialog"] *) {
   border-color: rgba(74, 138, 196, 0.22) !important;
 }
 
-/* === popup menu 浮层实底（v7.6.2 修复「视图选项」半透明）
-   dsh 默认 menu portal 容器背景是 rgba(143,184,232,0.3) 玻璃质感，深色系统下
-   几乎透光、菜单文字与下方工作区项互相干扰。沿用 dialog 实底色 + 加边框提升层次。
+/* === popup / dropdown 浮层实底（v7.6.2 修复「视图选项」半透明；v7.6.3 扩展到所有 menu 浮层）
+   dsh 默认 menu 容器背景是 rgba(143,184,232,0.3) 玻璃质感，深色系统下
+   几乎透光、菜单文字与下方工作区项互相干扰。
+   命中面板示例：
+     • 「视图选项」: _list_19372_8 _denseList_19372_118 _scrollable_19372_21 _portal_19372_43
+     • 「权限模式」: _list_19372_8 _scrollable_19372_21 _sideTop_19372_51
+     • 「模型选择」: _7KE1Ra_menu
+   class 前缀都不一致，唯一共同点是 [role="menu"]。放开选择器一次性覆盖。
    选择器用 [data-ds-bg-mode]（plugin 内部状态）保证关闭皮肤时让位 dsh 原生玻璃。 */
-[data-ds-bg-mode="dark"] [role="menu"][class*="_portal_"] {
+[data-ds-bg-mode="dark"] [role="menu"] {
   background-color: rgba(20, 32, 60, 1) !important;
   background-image: none !important;
   color: #e2e8f0 !important;
   border: 1px solid rgba(74, 138, 196, 0.25) !important;
   backdrop-filter: blur(8px) !important;
 }
-[data-ds-bg-mode="light"] [role="menu"][class*="_portal_"] {
+[data-ds-bg-mode="light"] [role="menu"] {
   background-color: rgba(249, 251, 254, 1) !important;
   background-image: none !important;
   color: #1e293b !important;

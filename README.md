@@ -37,7 +37,12 @@
 - **动画**：三层光晕不同周期（8s / 11s / 9s）缓慢呼吸，鲸鱼 16s 漂浮
 - **交互**：光晕层 `pointer-events: none` + `z-index: 99998`，永不挡 UI 操作；设置面板等弹层浮在装饰层之上（v6 层级修复）
 - **弹层实底**：dialog 不透明（深色 `rgba(20,32,60,0.92)` / 浅色 `rgba(249,251,254,0.99)`），不透出底层内容
-- **popup menu 实底**（v7.6.2）：视图选项、筛选下拉等 popup menu 浮层也改为完全实底（深色 `rgba(20,32,60,1)` / 浅色 `rgba(249,251,254,1)`）+ `backdrop-filter: blur(8px)` —— dsh 默认这些浮层是 `rgba(143,184,232,0.3)` 玻璃质感，深色系统下菜单文字几乎透光、互相干扰；现在修复为完全不透明 + 模糊背景
+- **popup menu 实底**（v7.6.3，覆盖所有 `[role="menu"]` 浮层）：dsh 默认给所有 dropdown / popup / dropdown menu 容器设的是 `rgba(143,184,232,0.3)` 玻璃质感，深色系统下菜单文字会透出底层内容、互相干扰。插件改为完全不透明（深色 `rgba(20,32,60,1)` / 浅色 `rgba(249,251,254,1)`）+ `backdrop-filter: blur(8px)`。覆盖面板：
+  - 「视图选项」（首页工作区侧栏）`_list_…_denseList_…_scrollable_…_portal_…`
+  - 「权限模式」（输入框上方）`_list_…_scrollable_…_sideTop_…`
+  - 「模型选择」（输入框右侧）`_7KE1Ra_menu`
+  
+  这三个面板的 class hash 前缀互不相同，唯一共同点是 `role="menu"`，故选择器放宽到 `[data-ds-bg-mode="dark|light"] [role="menu"]`，一次覆盖所有同类浮层
 
 ## 安装
 
