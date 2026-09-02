@@ -1,0 +1,17 @@
+{
+  "name": "dsh-ds-home-bg",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness 背景插件：将 Web UI 背景替换为官网 deepseek.com/harness 的深蓝黑底色 + 蓝色光晕 + 细网格风格",
+  "type": "module",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "cordis.patch.yml"
+  ],
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

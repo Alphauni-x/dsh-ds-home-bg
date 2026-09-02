@@ -1,0 +1,16 @@
+# dsh-ds-home-bg — 快速试用 overlay（无需安装到 profile）
+#
+# 用法：
+#   dsh --profile web --patch /path/to/dsh-ds-home-bg/test.patch.yml --no-open
+#
+# 注意：本 patch 只覆盖配色配置。插件本体需先注册到 web profile
+#       （dsh plugin --profile web add <插件目录>），注册后再带本 patch 试用。
+- id: ds-home-bg
+  config:
+    base: "#0B1120"
+    glow1: "#1A3870"
+    glow2: "#4A8AC4"
+    glow3: "#2D5F9E"
+    blur: 140
+    opacity: 0.45
+    animation: true

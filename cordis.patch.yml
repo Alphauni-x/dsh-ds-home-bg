@@ -1,0 +1,13 @@
+# dsh-ds-home-bg — bundle patch 模板
+#
+# 在 profile 中安装本 bundle 后，loader 会把本文件作为该 bundle 贡献的 layer 应用。
+# 此处插件行按包名 `dsh-ds-home-bg` 引用，Node 模块解析会在 profile 的依赖里找到。
+#
+# 使用方法（见 README.md）：
+#   dsh plugin --profile web add ./dsh-ds-home-bg
+#
+# 如需直接以 --patch 方式试用（不安装），请改用本目录的 test.patch.yml
+# 并把 name 字段改为你的本地绝对路径。
+- insert:
+    - id: ds-home-bg
+      name: dsh-ds-home-bg
