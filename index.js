@@ -285,6 +285,25 @@ body[data-ds-dark-theme] [class*="text-gray-11"]:not([role="dialog"] *) {
   border-color: rgba(74, 138, 196, 0.22) !important;
 }
 
+/* === popup menu 浮层实底（v7.6.2 修复「视图选项」半透明）
+   dsh 默认 menu portal 容器背景是 rgba(143,184,232,0.3) 玻璃质感，深色系统下
+   几乎透光、菜单文字与下方工作区项互相干扰。沿用 dialog 实底色 + 加边框提升层次。
+   选择器用 [data-ds-bg-mode]（plugin 内部状态）保证关闭皮肤时让位 dsh 原生玻璃。 */
+[data-ds-bg-mode="dark"] [role="menu"][class*="_portal_"] {
+  background-color: rgba(20, 32, 60, 1) !important;
+  background-image: none !important;
+  color: #e2e8f0 !important;
+  border: 1px solid rgba(74, 138, 196, 0.25) !important;
+  backdrop-filter: blur(8px) !important;
+}
+[data-ds-bg-mode="light"] [role="menu"][class*="_portal_"] {
+  background-color: rgba(249, 251, 254, 1) !important;
+  background-image: none !important;
+  color: #1e293b !important;
+  border: 1px solid rgba(30, 41, 59, 0.08) !important;
+  backdrop-filter: blur(8px) !important;
+}
+
 /* === 状态栏 / 顶栏 单独加固（仅作用于顶层 UI，不作用于 dialog 内部，避免面板顶栏"变盖子"） === */
 [data-ds-dark-theme] [class*="status"]:not([role="dialog"] *):not([role="alertdialog"] *),
 [data-ds-dark-theme] [class*="Status"]:not([role="dialog"] *):not([role="alertdialog"] *),
