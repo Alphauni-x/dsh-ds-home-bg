@@ -241,8 +241,38 @@ body[data-ds-dark-theme] [class*="text-gray-11"]:not([role="dialog"] *) {
 /* === [v2 修复] 强制所有 UI 文字浅色，覆盖硬编码 text-gray-500/400 等 ===
    排除：链接 a、按钮内 icon、主品牌色、错误/警告（红/绿/黄）、SVG、
    以及自带浅色底的高亮徽章（如"当前使用"inUse——浅底必须配深字/亮字，见下方专属规则）。 */
-[data-ds-dark-theme] *:not(a):not(button):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-yellow"]):not([class*="text-blue-400"]):not([class*="text-blue-500"]):not([class*="text-brand"]):not([class*="inUse"]):not(svg):not(svg *) {
+[data-ds-dark-theme] *:not(a):not(button):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-yellow"]):not([class*="text-blue-400"]):not([class*="text-blue-500"]):not([class*="text-brand"]):not([class*="inUse"]):not([class*="turnStatus"]):not(svg):not(svg *) {
   color: #cbd5e1 !important;
+}
+/* turnStatus（"Deep diving..." 等 AI 思考中状态指示）原本用蓝色渐变 + 扫光动画渲染：
+   -webkit-text-fill-color: transparent + background-clip:text + 渐变 background-image +
+   background-position 动画。被我们 line 202/234 等 background-image:none 命中把渐变背景
+   干掉，文字只剩透明 fill → 完全消失。
+   修复：恢复 dsh 原生设计——透明 fill + 渐变背景 + 从左到右扫光（高 specificity 选择器
+   防止被其它 background-image:none !important 覆盖，keyframes 放在 CSS 末尾）。 */
+html[data-ds-bg-mode="dark"] body [class*="turnStatus"] {
+  color: inherit !important;
+  -webkit-text-fill-color: transparent !important;
+  background-image: linear-gradient(90deg, #4a8ac4 0%, #7ab8e8 30%, #bcdaf6 50%, #4a8ac4 70%, #2d6cb4 100%) !important;
+  background-size: 200% 100% !important;
+  background-repeat: repeat-x !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  animation: ds-bg-shimmer 2.4s linear infinite !important;
+}
+html[data-ds-bg-mode="light"] body [class*="turnStatus"] {
+  color: inherit !important;
+  -webkit-text-fill-color: transparent !important;
+  background-image: linear-gradient(90deg, #2d6cb4 0%, #4a8ac4 30%, #1e5a9e 50%, #2d6cb4 70%, #1e4e8a 100%) !important;
+  background-size: 200% 100% !important;
+  background-repeat: repeat-x !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
+  animation: ds-bg-shimmer 2.4s linear infinite !important;
+}
+@keyframes ds-bg-shimmer {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: -200% 50%; }
 }
 /* 高亮徽章（"当前使用"等 inUse 类）：UI 原生浅灰白底 rgb(226,232,240)，改品牌蓝半透明底 + 亮字 */
 [data-ds-dark-theme] [class*="inUse"]:not(svg):not(svg *):not(button):not(a) {
@@ -629,6 +659,52 @@ function buildBootScript() {
       if (!e || !e.key) return;
       if (e.key === EN_KEY || e.key === SYSPREF_KEY) apply();
     });
+
+    // [v7.6.4] 恢复 turnStatus（AI 思考中状态指示 "Deep diving..."）的蓝色渐变扫光。
+    // dsh 原生 .Md3f7G_turnStatus 用 -webkit-text-fill-color:transparent + background-clip:text +
+    // background-size:250%100% + background-position:100%0 + animation(仅动画 background-position)，
+    // 但 keyframe 没设 background-image（background-image: ; 空字符串 = none）——
+    // 因此原生设计上 background-image 始终是 none，文字永远透明不可见。
+    // CSS 规则 !important 在 animation context 里被锁，stylesheet 中设 linear-gradient 无效。
+    // 修法：MutationObserver 检测 turnStatus 元素出现，inline style + setProperty 'important'
+    // （最高优先级，能突破 animation context）。
+    (function () {
+      var DARK_GRADIENT = 'linear-gradient(90deg, #4a8ac4 0%, #7ab8e8 30%, #bcdaf6 50%, #4a8ac4 70%, #2d6cb4 100%)';
+      var LIGHT_GRADIENT = 'linear-gradient(90deg, #2d6cb4 0%, #4a8ac4 30%, #1e5a9e 50%, #2d6cb4 70%, #1e4e8a 100%)';
+      function applyShimmer(el) {
+        if (!el || !el.isConnected) return;
+        if (el.__dsShimmerApplied) return;
+        el.__dsShimmerApplied = 1;
+        var dark = document.documentElement.getAttribute('data-ds-bg-mode') === 'dark';
+        var g = dark ? DARK_GRADIENT : LIGHT_GRADIENT;
+        el.style.setProperty('background-image', g, 'important');
+        el.style.setProperty('background-size', '250% 100%', 'important');
+        el.style.setProperty('background-clip', 'text', 'important');
+        el.style.setProperty('-webkit-background-clip', 'text', 'important');
+        el.style.setProperty('-webkit-text-fill-color', 'transparent', 'important');
+        el.style.setProperty('color', 'transparent', 'important');
+        el.style.setProperty('animation', 'ds-bg-shimmer 2.4s linear infinite', 'important');
+      }
+      function scan(root) {
+        if (!root || root.nodeType !== 1) return;
+        var cls = root.className && root.className.toString ? root.className.toString() : '';
+        if (/turnStatus/.test(cls)) applyShimmer(root);
+        if (root.querySelectorAll) {
+          var els = root.querySelectorAll('[class*="turnStatus"]');
+          for (var i = 0; i < els.length; i++) applyShimmer(els[i]);
+        }
+      }
+      var mo = new MutationObserver(function (muts) {
+        for (var i = 0; i < muts.length; i++) {
+          var added = muts[i].addedNodes;
+          for (var j = 0; j < added.length; j++) scan(added[j]);
+        }
+      });
+      if (document.body) {
+        mo.observe(document.body, { childList: true, subtree: true });
+        scan(document.body);
+      }
+    })();
   } catch (e) {}
 })();`;
 }

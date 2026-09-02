@@ -41,8 +41,11 @@
   - 「视图选项」（首页工作区侧栏）`_list_…_denseList_…_scrollable_…_portal_…`
   - 「权限模式」（输入框上方）`_list_…_scrollable_…_sideTop_…`
   - 「模型选择」（输入框右侧）`_7KE1Ra_menu`
-  
+
   这三个面板的 class hash 前缀互不相同，唯一共同点是 `role="menu"`，故选择器放宽到 `[data-ds-bg-mode="dark|light"] [role="menu"]`，一次覆盖所有同类浮层
+- **AI 思考状态指示渐变扫光**（v7.6.4）：对话页面 AI 思考时（streaming）会显示状态文字（典型文案 "Deep diving..."，class 稳定后缀 `_turnStatus`）。dsh 原生为它设了 `-webkit-text-fill-color: transparent` + `background-clip: text` + `background-size: 250% 100%` + `animation` 扫光，但 keyframes 完全没设 `background-image`（stylesheet 显式 `background-image: ;` = `none`），导致文字永久透明不可见——这正是用户问"AI 思考时怎么不显示深度思考字样"的根因。插件用 `MutationObserver` 检测元素出现，通过 `el.style.setProperty(name, value, 'important')`（inline `!important`，最高优先级，能突破 animation context 对 stylesheet `!important` 的锁）注入蓝色品牌渐变文字 + 自定义扫光 keyframes（`@keyframes ds-bg-shimmer` 把 `background-position` 从 0% 50% 推到 -200% 50%）：
+  - 深色：`#4a8ac4 → #7ab8e8 → #bcdaf6 → #4a8ac4 → #2d6cb4`
+  - 浅色：`#2d6cb4 → #4a8ac4 → #1e5a9e → #2d6cb4 → #1e4e8a`
 
 ## 安装
 
