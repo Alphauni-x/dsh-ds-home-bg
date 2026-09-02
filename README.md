@@ -2,13 +2,9 @@
 
 > DeepSeek Harness **背景主题插件**：把 Web UI 背景替换为 [deepseek.com/harness](https://www.deepseek.com/harness/) 官网同款——深蓝黑底色 + 蓝色径向光晕 + 细网格线 + 点阵鲸鱼。**配色自动跟随系统「外观」**（深色 / 浅色），零设置冲突。
 
-![应用后效果（深色系统）](./screenshot-v7.6-home.png)
-
 ## 效果
 
 ### 深色系统（夜晚）
-
-![深色系统下主页](./screenshot-v7.6-system-dark.png)
 
 - **底色**：`#0B1120` 深蓝黑
 - **三层光晕**：左 `#1A3870`、中 `#4A8AC4`→`#2D5F9E`、右 `#2D5F9E`→`#1A3870`，缓慢呼吸动画
@@ -16,8 +12,6 @@
 - **点阵鲸鱼**：官网 hero 同款半调方点鲸鱼，藏在右上光晕里缓缓漂浮
 
 ### 浅色系统（白天）
-
-![浅色系统下主页](./screenshot-v7.6-system-light.png)
 
 - **底色**：`#EEF3FA` 浅蓝白，UI 回归原生浅色面板
 - **柔和光晕**：`#A9C8F0` / `#D7E6F9` / `#8FB8E8`
@@ -27,14 +21,8 @@
 
 皮肤开关位于 **设置 → 通用设置**，「背景皮肤」分组紧跟系统「外观」分组之后：
 
-![设置面板：外观 + 背景皮肤开关](./screenshot-v7.6-settings.png)
-
 - **配色恒跟随系统外观**：你在系统「外观」组选「深色」，背景就是深海风格；选「浅色」就是浅海风格；选「跟随系统」则随 `prefers-color-scheme` 实时切换。皮肤没有任何独立主题选择——不会与系统主题打架。
 - **「背景皮肤」开关**：关闭后整套装饰（光晕 / 网格 / 鲸鱼）隐藏，页面恢复 dsh 原生背景；重新打开立即恢复。
-
-![皮肤关闭 + 系统浅色](./screenshot-v7.6-skin-off-system-light.png)
-![皮肤关闭 + 系统深色](./screenshot-v7.6-skin-off-system-dark.png)
-![皮肤重新启用 + 系统深色](./screenshot-v7.6-skin-reenabled-dark.png)
 
 选择持久化在浏览器 `localStorage`：
 
@@ -116,7 +104,6 @@ dsh-ds-home-bg/
 ├── package.json        # bundle manifest（dsh.bundle 字段）
 ├── cordis.patch.yml    # bundle patch（`dsh plugin add` 时使用，按包名解析）
 ├── test.patch.yml      # --patch 快速试用时的配置层
-├── screenshot-v7.6-*.png   # 效果截图（主页 / 设置面板 / 深浅系统 / 开关状态）
 └── README.md
 ```
 
