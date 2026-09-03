@@ -49,32 +49,61 @@
 
 ## 安装
 
-### 方式 A：直接试用（推荐先看效果）
-
-不修改任何 profile 配置，临时叠加到 Web UI：
+### 方式 A：从 GitHub 一行命令安装（推荐）
 
 ```bash
-# 默认端口 3080，加 --port 改端口
+# 1) 下载到 profile 的 node_modules
+cd ~/.dsh/profiles/web
+pnpm add "github:Alphauni-x/dsh-ds-home-bg#v0.1.0"
+
+# 2) 注册为 profile 层——harness 只会加载 dsh.profile.bundles 数组里列出的 bundle
+#    编辑 package.json，把 "dsh-ds-home-bg" 加到 "dsh.profile.bundles" 数组里：
+node -e "
+const fs = require('fs');
+const f = 'package.json';
+const p = JSON.parse(fs.readFileSync(f, 'utf8'));
+p.dsh.profile.bundles.push('dsh-ds-home-bg');
+fs.writeFileSync(f, JSON.stringify(p, null, 2) + '\n');
+console.log('✓ dsh-ds-home-bg added to dsh.profile.bundles');
+"
+
+# 3) 重启 dsh web 让新插件被加载
+pkill -f "dsh web" && sleep 2 && dsh web
+```
+
+> 为什么是两步：`dsh plugin add <github-url>` 在 `dsh 0.1.1-rc.2` 上未真正写入 `bundles` 数组，harness 启动时不会加载它。上面这条是当前实测 100% 成功的路径。
+
+> 锁定版本：把 `v0.1.0` 替换成 `main` 装最新版，或换 `v0.2.0` / `v0.1.1` 等其他 tag。
+
+### 方式 B：先 clone 仓库，再 `dsh plugin add` 本地路径
+
+```bash
+git clone https://github.com/Alphauni-x/dsh-ds-home-bg.git
+dsh plugin --profile web add ./dsh-ds-home-bg
+pkill -f "dsh web" && sleep 2 && dsh web
+```
+
+适合"想顺便改点配置 / 看代码"的用户。`dsh plugin add` 会自动把插件加到 `dsh.profile.bundles` 数组。
+
+### 方式 C：直接试用（不改 profile）
+
+不真正安装到 profile，只临时叠加：
+
+```bash
 dsh --profile web --patch /path/to/dsh-ds-home-bg/test.patch.yml --no-open
 ```
 
-`test.patch.yml` 只覆盖配色配置；插件本体通过下面的方式 B 注册到 profile 后 `--patch` 才会生效。
-
-### 方式 B：正式安装到 profile
-
-```bash
-dsh plugin --profile web add /path/to/dsh-ds-home-bg
-```
-
-之后 `dsh --profile web` 启动就会自动应用，**无需再带 `--patch`**。
+`test.patch.yml` 只覆盖配色；插件本体需先用方式 A 或 B 注册到 profile，`--patch` 才会生效。
 
 ### 卸载
 
 ```bash
+# 方式 A / B 都用这个卸
 dsh plugin --profile web remove dsh-ds-home-bg
+pkill -f "dsh web" && sleep 2 && dsh web
 ```
 
-> **手动卸载**：删除 `~/.dsh/profiles/web/node_modules/dsh-ds-home-bg/` + `package.json` 中的依赖条目 + `cordis.patch.yml` 中的 `insert` 段，然后重启 `dsh web`。
+> **手动卸载**（如果 `dsh plugin remove` 失败）：删除 `~/.dsh/profiles/web/node_modules/dsh-ds-home-bg/` + `package.json` 的 `dependencies` 和 `dsh.profile.bundles` 里的对应条目，然后重启 `dsh web`。
 
 ## ⚠️ 修改代码后必须重启 web 实例
 
