@@ -40,15 +40,26 @@ State persists in browser `localStorage`:
 dsh plugin --profile web add github:Alphauni-x/dsh-ds-home-bg
 ```
 
-Then restart `dsh web`. The plugin registers itself into the profile's bundle stack and applies on every subsequent boot.
+Restart `dsh web`. Verified end-to-end on dsh `0.1.1-rc.2`: the package is installed, `dsh` reconciles `dsh.profile.bundles` automatically, and the plugin's `cordis.patch.yml` insert lands as `- id: ds-home-bg`. No manual `package.json` editing and no `allowBuilds` entry are required — this package ships plain ESM with no build step, so pnpm's blocked-build-scripts policy never applies.
 
-This package ships **plain ESM with zero dependencies and no build step**, so pnpm's default "blocked build scripts" policy never comes into play — there is nothing to compile after checkout.
+Pin a release if you want a stable install:
+
+```sh
+dsh plugin --profile web add github:Alphauni-x/dsh-ds-home-bg#v0.1.0
+```
+
+> `github:` specs resolve to a commit at install time and are **not** auto-updated by the plugin market (a bare `owner/repo` names no commit to compare against). For in-place updates publish to npm, or attach a prebuilt tarball to a GitHub Release.
+
+If the command fails with a git access error, retry before assuming it is broken — transient TLS failures to `github.com` are the usual cause, and `dsh` appends a generic `allowBuilds` hint to *any* pnpm failure, which is misleading in this case.
 
 ### From a local checkout
 
 ```sh
-dsh plugin --profile web add /absolute/path/to/dsh-ds-home-bg
+git clone https://github.com/Alphauni-x/dsh-ds-home-bg.git
+dsh plugin --profile web add ./dsh-ds-home-bg
 ```
+
+Useful when you also want to tweak the palette. `dsh plugin add` writes both the dependency and the `dsh.profile.bundles` entry.
 
 ### Uninstall
 
@@ -56,6 +67,12 @@ dsh plugin --profile web add /absolute/path/to/dsh-ds-home-bg
 dsh plugin --profile web remove dsh-ds-home-bg
 pkill -f "dsh web" && sleep 2 && dsh web
 ```
+
+If the command fails, remove it by hand: delete `~/.dsh/profiles/web/node_modules/dsh-ds-home-bg/`, drop the entry from both `dependencies` and `dsh.profile.bundles` in `~/.dsh/profiles/web/package.json`, then restart `dsh web`. Leaving a name in `dsh.profile.bundles` while its package is gone makes the whole profile fail to boot with `cannot resolve profile bundle`.
+
+## Getting listed in the Plugin Market
+
+The in-app market reads a curated catalog, not GitHub directly. Open a PR against the [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) registry with one entry for your package; the site and the market pick it up automatically, typically within a day. Installs there prefer an npm package, then a prebuilt GitHub Release tarball, then full-repo GitHub source.
 
 ## Configuration
 
