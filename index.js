@@ -127,12 +127,19 @@ html, body {
 }
 
 /* === 光晕装饰层 ===
-   浮在所有 UI 内容之上（z-index 99998 < dialog/modal 的 1000+ 阈值），
-   pointer-events: none 不影响交互，视觉上是"光晕作为最上层装饰"。 */
+   z-index: 10 —— 实测本机 app 的层级分布：内容层 1 / 2，弹层容器 *_overlayLayer 为 20。
+   取 10 即"浮在内容之上、躲在弹层之下"：皮肤完整可见，又不会盖住任何 dialog。
+   前提是 #root 不能是 stacking context（见下方 v6 段的说明），否则弹层的 20
+   会被关在 #root 里出不来。
+   不要退回 99998：那会高于所有弹层，逼得你再给 dialog 加强 z-index，
+   而 [role="dialog"] 是通配，会把设置面板和它内部的确认框压成同值 → 确认框消失。
+   也不要降到 -1：app 内部有若干不透明容器（layout frame、conversation root），
+   它们会把装饰层整个挡掉，皮肤就看不见了。
+   pointer-events: none 保证不拦截交互。 */
 .dsh-ds-home-bg {
   position: fixed;
   inset: 0;
-  z-index: 99998;
+  z-index: 10;
   pointer-events: none;
   overflow: hidden;
   contain: strict;
@@ -230,10 +237,13 @@ body[data-ds-dark-theme] [class*="text-gray-11"]:not([role="dialog"] *) {
   color: #e2e8f0 !important;
   border-color: rgba(74, 138, 196, 0.18) !important;
 }
-/* Sidebar 内部嵌套卡片式 panel（递归一层） */
-[data-ds-dark-theme] aside [class*="bg-"],
-[data-ds-dark-theme] [role="complementary"] [class*="bg-"],
-[data-ds-dark-theme] [class*="sidebar"] [class*="bg-"] {
+/* Sidebar 内部嵌套卡片式 panel（递归一层）
+   注意：[class*="bg-"] 是子串匹配，会误伤本插件自己的 .ds-bg-switch
+   （class 名 "ds-bg-switch" 里含子串 "bg-"），把开关的状态色覆盖掉，
+   所以必须显式 :not(.ds-bg-switch) 排除。 */
+[data-ds-dark-theme] aside [class*="bg-"]:not(.ds-bg-switch),
+[data-ds-dark-theme] [role="complementary"] [class*="bg-"]:not(.ds-bg-switch),
+[data-ds-dark-theme] [class*="sidebar"] [class*="bg-"]:not(.ds-bg-switch) {
   background-color: rgba(20, 32, 60, 0.72) !important;
   background-image: none !important;
 }
@@ -382,22 +392,22 @@ html[data-ds-bg-mode="light"] body [class*="turnStatus"] {
   border-color: transparent !important;
 }
 
-/* === [v6] 弹层抬到装饰层之上 + 浅色模式 dialog 实底化 ===
-   #root 是 relative + z-index:0，整个 app（含所有弹层）被困在这个低于装饰层(99998)
-   的 stacking context 里——先放开 #root，再把弹层容器抬到装饰层之上。
-   （UI 弹层原生 z-index 只有 1000~1100，且 dialog 在 <div class="xxx_overlay"> 内） */
+/* === [v6→已修] 浅色模式 dialog 实底化 ===
+   这里原先是两条：#root { z-index: auto !important }，加上把
+   [class*="_overlay"] / [role="dialog"] / [role="menu"] … 一律抬到 z-index: 100000。
+
+   第二条已删除，它是「点安装没反应」的根因：[role="dialog"] 是通配，设置面板本身
+   也是 dialog，于是面板和它内部的确认框被压成同一个 z-index；更糟的是那些
+   *_overlay 包裹层也被强制成 100000，各自变成独立的 stacking context，同值时退回
+   DOM 顺序决胜 → 面板那层恰好排在后面，确认框就被画到了面板底下，看不见也点不到。
+
+   第一条保留，且必须保留：#root 原生是 relative + z-index:0，会形成 stacking context，
+   把弹层容器的 z-index:20 关在里面。装饰层现在是 10，需要高于内容、低于弹层，
+   所以必须让 #root 的 stacking context 放开，弹层的 20 才能出来盖住装饰层。
+   注意这条只影响 #root 自身，不给任何 dialog 设 z-index，弹层之间的相对顺序
+   完全交回 app 原生 CSS，不再出现同值打架。 */
 #root {
   z-index: auto !important;
-}
-[class*="_overlay"],
-[class*="_Overlay"],
-[class*="_popover"],
-[class*="_Popover"],
-[role="dialog"],
-[role="alertdialog"],
-[role="listbox"],
-[role="menu"] {
-  z-index: 100000 !important;
 }
 [data-ds-bg-mode="light"] [role="dialog"],
 [data-ds-bg-mode="light"] [role="alertdialog"] {
@@ -483,17 +493,23 @@ html[data-ds-bg-disabled] .dsh-ds-home-bg { display: none !important; }
   font-size: 14px;
   color: var(--ds-skin-row-label, #cbd5e1);
 }
+/* 状态色必须写成 [aria-checked=...] 属性选择器 + !important：
+   本文件上方有 [data-ds-dark-theme] [class*="bg-"] { background-color: ... !important }
+   这条深色面板统一规则，而 "ds-bg-switch" 的 class 名里正好含子串 "bg-"，会被它命中。
+   该通配规则特异性是 (0,2,0)，裸 .ds-bg-switch 只有 (0,1,0) 会被压掉，
+   于是开/关轨道变成同一个颜色、只剩滑块位置这一条线索。
+   这里把两种状态都提到 (0,2,0) 并加 !important，靠源码顺序取胜；
+   同时给三重视觉线索：轨道颜色 + 滑块位置 + 开态外发光/关态内描边。 */
 .ds-bg-switch {
   position: relative;
   width: 38px;
   height: 22px;
   border-radius: 11px;
-  background: rgba(148, 163, 184, 0.35);
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: background 0.2s ease;
   flex-shrink: 0;
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 .ds-bg-switch::after {
   content: "";
@@ -503,15 +519,24 @@ html[data-ds-bg-disabled] .dsh-ds-home-bg { display: none !important; }
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #f1f5f9;
-  transition: transform 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  background: rgba(226, 232, 240, 0.8) !important;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
+/* 关：灰轨道 + 内描边，无发光 */
+.ds-bg-switch[aria-checked="false"] {
+  background-color: rgba(148, 163, 184, 0.2) !important;
+  box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.55) !important;
+}
+/* 开：品牌蓝轨道 + 白滑块 + 一圈蓝色外发光 */
 .ds-bg-switch[aria-checked="true"] {
-  background: #4a8ac4;
+  background-color: #4a8ac4 !important;
+  box-shadow: inset 0 0 0 1px rgba(122, 184, 232, 0.95),
+    0 0 10px rgba(74, 138, 196, 0.6) !important;
 }
 .ds-bg-switch[aria-checked="true"]::after {
   transform: translateX(16px);
+  background: #ffffff !important;
 }
 .ds-bg-switch:focus-visible {
   outline: 2px solid #4a8ac4;

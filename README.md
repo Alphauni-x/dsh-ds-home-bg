@@ -1,179 +1,139 @@
 # dsh-ds-home-bg
 
-> DeepSeek Harness **背景主题插件**：把 Web UI 背景替换为 [deepseek.com/harness](https://www.deepseek.com/harness/) 官网同款——深蓝黑底色 + 蓝色径向光晕 + 细网格线 + 点阵鲸鱼。**配色自动跟随系统「外观」**（深色 / 浅色），零设置冲突。
+> A deep-navy aurora background theme for the DeepSeek Harness web UI: layered radial glows, a fine grid, and a drifting halftone whale. The palette follows the host **Appearance** setting automatically — no separate theme picker, so it can never disagree with your light/dark choice.
 
-## 效果
+## What you get
 
-### 深色系统（夜晚）
+### Dark palette
 
-- **底色**：`#0B1120` 深蓝黑
-- **三层光晕**：左 `#1A3870`、中 `#4A8AC4`→`#2D5F9E`、右 `#2D5F9E`→`#1A3870`，缓慢呼吸动画
-- **细网格**：44px × 44px，淡蓝色 (`rgba(74,138,196,0.06)`)，中心 90% 区域可见
-- **点阵鲸鱼**：官网 hero 同款半调方点鲸鱼，藏在右上光晕里缓缓漂浮
+- **Base** `#0B1120` deep navy-black
+- **Three glows** left `#1A3870`, centre `#4A8AC4` → `#2D5F9E`, right `#2D5F9E` → `#1A3870`, breathing slowly on different cycles
+- **Grid** 44 px × 44 px, faint blue (`rgba(74,138,196,0.06)`), visible across the central 90 %
+- **Halftone whale** a square-dot whale motif tucked inside the upper-right glow, floating
 
-### 浅色系统（白天）
+### Light palette
 
-- **底色**：`#EEF3FA` 浅蓝白，UI 回归原生浅色面板
-- **柔和光晕**：`#A9C8F0` / `#D7E6F9` / `#8FB8E8`
-- **点阵鲸鱼**：深蓝色点阵，若隐若现
+- **Base** `#EEF3FA` blue-tinted white; panels return to their native light surfaces
+- **Softer glows** `#A9C8F0` / `#D7E6F9` / `#8FB8E8`
+- **Halftone whale** in deep blue dots, barely there
 
-### 设置面板
+### Settings toggle
 
-皮肤开关位于 **设置 → 通用设置**，「背景皮肤」分组紧跟系统「外观」分组之后：
+The switch lives in **Settings → General**, in a *Background skin* group placed right after the system *Appearance* group.
 
-- **配色恒跟随系统外观**：你在系统「外观」组选「深色」，背景就是深海风格；选「浅色」就是浅海风格；选「跟随系统」则随 `prefers-color-scheme` 实时切换。皮肤没有任何独立主题选择——不会与系统主题打架。
-- **「背景皮肤」开关**：关闭后整套装饰（光晕 / 网格 / 鲸鱼）隐藏，页面恢复 dsh 原生背景；重新打开立即恢复。
+- **Palette always follows Appearance** — pick Dark and you get the deep-sea look, pick Light for the shallow-sea look, pick *System* to follow `prefers-color-scheme` live. The skin has no theme choice of its own by design.
+- **Background skin switch** — turning it off hides all decoration (glows / grid / whale) and restores the stock background instantly; turning it back on restores the skin.
 
-选择持久化在浏览器 `localStorage`：
+State persists in browser `localStorage`:
 
-| Key | 值 | 说明 |
-|-----|---|------|
-| `dsh-ds-home-bg-enabled` | `'true'` / `'false'` | 皮肤总开关 |
-| `dsh-ds-home-bg-syspref` | `'light'` / `'dark'` / `'system'` | 系统「外观」偏好镜像（插件内部同步用，关闭皮肤时按它让位系统主题） |
-| `dsh-ds-home-bg-mode` | 已废弃 | 旧版皮肤模式 key；v7.6 起启动时自动清理残留 |
+| Key | Value | Purpose |
+|-----|-------|---------|
+| `dsh-ds-home-bg-enabled` | `'true'` / `'false'` | Master switch |
+| `dsh-ds-home-bg-syspref` | `'light'` / `'dark'` / `'system'` | Mirror of the host Appearance selection, used to hand `data-ds-dark-theme` back to the host when the skin is turned off |
+| `dsh-ds-home-bg-mode` | deprecated | Pre-v7.6 key; cleaned up at boot |
 
-### 细节
+## Install
 
-- **动画**：三层光晕不同周期（8s / 11s / 9s）缓慢呼吸，鲸鱼 16s 漂浮
-- **交互**：光晕层 `pointer-events: none` + `z-index: 99998`，永不挡 UI 操作；设置面板等弹层浮在装饰层之上（v6 层级修复）
-- **弹层实底**：dialog 不透明（深色 `rgba(20,32,60,0.92)` / 浅色 `rgba(249,251,254,0.99)`），不透出底层内容
-- **popup menu 实底**（v7.6.3，覆盖所有 `[role="menu"]` 浮层）：dsh 默认给所有 dropdown / popup / dropdown menu 容器设的是 `rgba(143,184,232,0.3)` 玻璃质感，深色系统下菜单文字会透出底层内容、互相干扰。插件改为完全不透明（深色 `rgba(20,32,60,1)` / 浅色 `rgba(249,251,254,1)`）+ `backdrop-filter: blur(8px)`。覆盖面板：
-  - 「视图选项」（首页工作区侧栏）`_list_…_denseList_…_scrollable_…_portal_…`
-  - 「权限模式」（输入框上方）`_list_…_scrollable_…_sideTop_…`
-  - 「模型选择」（输入框右侧）`_7KE1Ra_menu`
+### One command, from GitHub
 
-  这三个面板的 class hash 前缀互不相同，唯一共同点是 `role="menu"`，故选择器放宽到 `[data-ds-bg-mode="dark|light"] [role="menu"]`，一次覆盖所有同类浮层
-- **AI 思考状态指示渐变扫光**（v7.6.4）：对话页面 AI 思考时（streaming）会显示状态文字（典型文案 "Deep diving..."，class 稳定后缀 `_turnStatus`）。dsh 原生为它设了 `-webkit-text-fill-color: transparent` + `background-clip: text` + `background-size: 250% 100%` + `animation` 扫光，但 keyframes 完全没设 `background-image`（stylesheet 显式 `background-image: ;` = `none`），导致文字永久透明不可见——这正是用户问"AI 思考时怎么不显示深度思考字样"的根因。插件用 `MutationObserver` 检测元素出现，通过 `el.style.setProperty(name, value, 'important')`（inline `!important`，最高优先级，能突破 animation context 对 stylesheet `!important` 的锁）注入蓝色品牌渐变文字 + 自定义扫光 keyframes（`@keyframes ds-bg-shimmer` 把 `background-position` 从 0% 50% 推到 -200% 50%）：
-  - 深色：`#4a8ac4 → #7ab8e8 → #bcdaf6 → #4a8ac4 → #2d6cb4`
-  - 浅色：`#2d6cb4 → #4a8ac4 → #1e5a9e → #2d6cb4 → #1e4e8a`
-
-## 安装
-
-### 方式 A：从 GitHub 一行命令安装（推荐）
-
-```bash
-# 1) 下载到 profile 的 node_modules
-cd ~/.dsh/profiles/web
-pnpm add "github:Alphauni-x/dsh-ds-home-bg#v0.1.0"
-
-# 2) 注册为 profile 层——harness 只会加载 dsh.profile.bundles 数组里列出的 bundle
-#    编辑 package.json，把 "dsh-ds-home-bg" 加到 "dsh.profile.bundles" 数组里：
-node -e "
-const fs = require('fs');
-const f = 'package.json';
-const p = JSON.parse(fs.readFileSync(f, 'utf8'));
-p.dsh.profile.bundles.push('dsh-ds-home-bg');
-fs.writeFileSync(f, JSON.stringify(p, null, 2) + '\n');
-console.log('✓ dsh-ds-home-bg added to dsh.profile.bundles');
-"
-
-# 3) 重启 dsh web 让新插件被加载
-pkill -f "dsh web" && sleep 2 && dsh web
+```sh
+dsh plugin --profile web add github:Alphauni-x/dsh-ds-home-bg
 ```
 
-> 为什么是两步：`dsh plugin add <github-url>` 在 `dsh 0.1.1-rc.2` 上未真正写入 `bundles` 数组，harness 启动时不会加载它。上面这条是当前实测 100% 成功的路径。
+Then restart `dsh web`. The plugin registers itself into the profile's bundle stack and applies on every subsequent boot.
 
-> 锁定版本：把 `v0.1.0` 替换成 `main` 装最新版，或换 `v0.2.0` / `v0.1.1` 等其他 tag。
+This package ships **plain ESM with zero dependencies and no build step**, so pnpm's default "blocked build scripts" policy never comes into play — there is nothing to compile after checkout.
 
-### 方式 B：先 clone 仓库，再 `dsh plugin add` 本地路径
+### From a local checkout
 
-```bash
-git clone https://github.com/Alphauni-x/dsh-ds-home-bg.git
-dsh plugin --profile web add ./dsh-ds-home-bg
-pkill -f "dsh web" && sleep 2 && dsh web
+```sh
+dsh plugin --profile web add /absolute/path/to/dsh-ds-home-bg
 ```
 
-适合"想顺便改点配置 / 看代码"的用户。`dsh plugin add` 会自动把插件加到 `dsh.profile.bundles` 数组。
+### Uninstall
 
-### 方式 C：直接试用（不改 profile）
-
-不真正安装到 profile，只临时叠加：
-
-```bash
-dsh --profile web --patch /path/to/dsh-ds-home-bg/test.patch.yml --no-open
-```
-
-`test.patch.yml` 只覆盖配色；插件本体需先用方式 A 或 B 注册到 profile，`--patch` 才会生效。
-
-### 卸载
-
-```bash
-# 方式 A / B 都用这个卸
+```sh
 dsh plugin --profile web remove dsh-ds-home-bg
 pkill -f "dsh web" && sleep 2 && dsh web
 ```
 
-> **手动卸载**（如果 `dsh plugin remove` 失败）：删除 `~/.dsh/profiles/web/node_modules/dsh-ds-home-bg/` + `package.json` 的 `dependencies` 和 `dsh.profile.bundles` 里的对应条目，然后重启 `dsh web`。
+## Configuration
 
-## ⚠️ 修改代码后必须重启 web 实例
-
-`webserver/index-inject` 只在启动时触发，**cordis HMR 不会重新注入 style**。改了 `index.js` 后必须重启 `dsh web`：
-
-```bash
-pkill -f "dsh web" && sleep 2 && dsh web
-```
-
-修改 `cordis.patch.yml` 里 `config:` 下的参数（颜色、模糊度等）则**支持热重载**，无需重启。
-
-## 配置
-
-在 `~/.dsh/profiles/web/cordis.patch.yml` 末尾追加：
+Append to `~/.dsh/profiles/web/cordis.patch.yml`:
 
 ```yaml
 - id: ds-home-bg
   config:
-    base: "#0B1120"     # 底色
-    glow1: "#1A3870"    # 左下光晕
-    glow2: "#4A8AC4"    # 中上光晕
-    glow3: "#2D5F9E"    # 右下光晕
-    grid: "rgba(74, 138, 196, 0.06)"  # 网格线
-    blur: 140           # 光晕模糊半径 px
-    opacity: 0.45       # 光晕整体强度
-    animation: true     # 是否开启动画
+    base: "#0B1120"     # background base colour
+    glow1: "#1A3870"    # lower-left glow
+    glow2: "#4A8AC4"    # upper-centre glow
+    glow3: "#2D5F9E"    # lower-right glow
+    grid: "rgba(74, 138, 196, 0.06)"   # grid line colour
+    blur: 140           # glow blur radius, px
+    opacity: 0.45       # overall glow strength
+    animation: true     # enable breathing animation
 ```
 
-改完保存后**热重载**生效——无需重启服务。
+Config changes **hot-reload** — save the file and the loader re-applies, no restart needed.
 
-## 文件结构
+## Restart requirement
 
-```
-dsh-ds-home-bg/
-├── index.js            # 插件入口（ESM, 零外部依赖, 深/浅双主题 + 设置面板注入）
-├── package.json        # bundle manifest（dsh.bundle 字段）
-├── cordis.patch.yml    # bundle patch（`dsh plugin add` 时使用，按包名解析）
-├── test.patch.yml      # --patch 快速试用时的配置层
-└── README.md
+`webserver/index-inject` fires once at boot, and Cordis HMR does **not** re-inject the `<style>` row. After editing `index.js` you must restart:
+
+```sh
+pkill -f "dsh web" && sleep 2 && dsh web
 ```
 
-## 实现要点
+Only `config:` values hot-reload; code does not.
 
-插件通过监听 `webserver/index-inject` 事件向 `index.html` 注入四段内容：
+## How it works
 
-| kind | 位置 | 字段 | 作用 |
-|------|------|------|------|
-| `style` | head 末尾 | `text` | 深浅两套 CSS 变量色板 + 装饰层样式 + 设置面板开关样式 |
-| `script` (boot) | body 末尾 | `text` | 解析宿主系统主题意图、守护 `data-ds-dark-theme`、暴露 `window.__dsBgSettings`、监听 `ds-bg-syspref` 事件 |
-| `script` (settings) | body 末尾 | `text` | 设置面板注入「背景皮肤」开关组；capture 阶段镜像系统外观偏好 |
-| `html` | body 末尾 | `html` | 光晕装饰层 `<div>` + 点阵鲸鱼 SVG |
+The plugin listens for `webserver/index-inject` and pushes four rows into the index table:
 
-**主题跟随机制**（v7.6）：
+| `kind` | Placement | Field | Purpose |
+|--------|-----------|-------|---------|
+| `style` | end of `<head>` | `text` | Both palettes as CSS custom properties, decoration layer styles, switch styles |
+| `script` (boot) | end of `<body>` | `text` | Resolves host Appearance intent, guards `data-ds-dark-theme`, exposes `window.__dsBgSettings`, listens for `ds-bg-syspref` |
+| `script` (settings) | end of `<body>` | `text` | Injects the *Background skin* group into the settings dialog; mirrors the Appearance selection during the capture phase |
+| `html` | end of `<body>` | `html` | The glow decoration `<div>` plus the halftone whale SVG |
 
-- 配色由 `html[data-ds-bg-mode="dark"|"light"]` 两个 CSS 变量块驱动（注意：`data-ds-bg-mode` 是**插件内部的渲染状态**，不是用户选择）
-- boot script 的 `resolved()` 只读「宿主系统外观意图」：用户选了深/浅色就读系统 cube 选中态（设置面板在 capture 阶段把它镜像到 localStorage `dsh-ds-home-bg-syspref` 并派发事件），否则跟 `prefers-color-scheme`
-- 插件接管期间需要系统暗色时，把 `data-ds-dark-theme` 同时写到 `<html>` + `<body>` 并用 MutationObserver 守护；关闭皮肤时按系统意图让位（只清自己写过的，不动宿主属性）
-- 「背景皮肤」开关关闭 → `html[data-ds-bg-disabled]` → 装饰层 `display: none`
-- 设置面板注入靠 MutationObserver 扫描 dialog（tab 切换 / 重渲染自动补注入）
+Theme resolution (v7.6+):
 
-## ⚠️ 兼容性与免责声明
+- Palettes are driven by `html[data-ds-bg-mode="dark"|"light"]`. This attribute is the plugin's **render state**, not a user setting.
+- The boot script reads only host intent: the mirrored Appearance cube selection if present, otherwise `prefers-color-scheme`.
+- While the skin is active and dark is required, `data-ds-dark-theme` is written to both `<html>` and `<body>` and guarded by a `MutationObserver`. When the skin is switched off, the attribute is handed back according to host intent — the plugin only clears what it wrote itself.
+- Switch off → `html[data-ds-bg-disabled]` → decoration layer `display: none`.
+- Settings injection uses a MutationObserver over dialogs, so tab switches and React re-renders re-inject automatically.
 
-- 插件针对**当前 dsh web 版本**（在 dsh 0.x / 2026-09 构建上验证）开发，内部依赖少量 UI 结构（如设置面板分组、主题 cube 的选择器用稳定语义后缀 `[class*="_themeCube"]` 匹配，不依赖 hash 前缀）。**dsh 大版本升级后如出现皮肤开关不显示或装饰层层级异常，请先确认是否为 UI 结构变化所致。**
-- 插件是**非官方**个人作品，通过 `webserver/index-inject` 注入实现（该事件由官方主题插件同款机制提供），与 DeepSeek 官方无关。建议先在 `dsh --profile web --patch` 试用模式下验证，确认无问题再正式安装。
+## Stacking model (v7.6.5)
 
-## 参考
+This is the part that broke before, so it is documented deliberately.
 
-- 官方主题插件源码：`@deepseek-ai/dsh-client-ui-theme/lib/index.js` —— `webserver/index-inject` 事件的完整用法
-- `dsh-host-webserver/lib/types/injections.d.ts` —— 注入行 schema
-- `dsh-host-webserver/lib/index.js` —— `renderRow()` 实际渲染逻辑
+- The decoration layer sits at **`z-index: 10`**. Measured against the current host UI: content layers are `1` / `2`, and the dialog container (`*_overlayLayer`) is `20`. So `10` renders above content and below every popup — the skin is fully visible without ever covering a dialog.
+- `#root { z-index: auto !important }` is **required**: `#root` is natively `relative` + `z-index: 0`, which would trap the overlay layer's `20` inside its own stacking context.
+- Do **not** raise the decoration back to `99998`. Anything above the popups forces you to re-lift dialogs, and a blanket `[role="dialog"] { z-index: … !important }` collapses a settings panel and the confirm dialog rendered inside it to the same value — the confirm dialog then paints *under* the panel and appears to be a dead button.
+- Do **not** lower it to `-1`. Several host containers paint opaque backgrounds (`*_frame`, conversation roots), which hide the decoration entirely.
+- The switch's state colours are written as `.ds-bg-switch[aria-checked="…"]` with `!important`. A broad `[class*="bg-"]` panel rule matches `ds-bg-switch` by substring, so the attribute selector is needed to win the cascade; `:not(.ds-bg-switch)` was also added at the source.
+
+## Other UI details
+
+- **Opaque popups** — dialogs are solid (dark `rgba(20,32,60,0.92)`, light `rgba(249,251,254,0.99)`) so content underneath never bleeds through.
+- **Popup menus** (v7.6.3) — the host gives dropdown/popup containers a translucent glass fill, which makes menu text collide with what's behind it in dark mode. All `[role="menu"]` surfaces are made opaque with an 8 px backdrop blur.
+- **Streaming status shimmer** (v7.6.4) — the "Deep diving…" thinking indicator sets `background-clip: text` with a transparent text fill but never supplies a `background-image`, so the label is permanently invisible. A MutationObserver detects the element and injects a brand-blue gradient plus a `ds-bg-shimmer` keyframe via inline `!important`, which is the only priority level that escapes the animation context.
+
+## Compatibility
+
+Built and verified against the dsh web build from 2026-09. The plugin depends on a small number of host UI structures; selectors use stable semantic suffixes (for example `[class*="_themeCube"]`) rather than CSS-Module hash prefixes, which change on every build.
+
+If a future dsh release hides the skin switch or misplaces the decoration layer, check for a host UI structure change first — the stacking model above is the usual culprit.
+
+This is an independent community theme plugin. It is not affiliated with or endorsed by DeepSeek.
+
+## References
+
+- `@deepseek-ai/dsh-client-ui-theme` — the bundled theme package, reference implementation of `webserver/index-inject`
+- `dsh-host-webserver/lib/types/injections.d.ts` — injected row schema
+- `dsh-host-webserver/lib/index.js` — `renderRow()`, how each row is actually emitted
 
 ## License
 

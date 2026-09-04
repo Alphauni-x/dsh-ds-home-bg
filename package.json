@@ -1,13 +1,29 @@
 {
   "name": "dsh-ds-home-bg",
-  "version": "0.1.0",
-  "description": "DeepSeek Harness 背景插件：将 Web UI 背景替换为官网 deepseek.com/harness 的深蓝黑底色 + 蓝色光晕 + 细网格风格",
+  "version": "7.6.5",
+  "description": "Deep-navy aurora background theme for the DeepSeek Harness web UI: layered radial glows, a fine grid and a drifting halftone whale, following the host Appearance setting.",
   "type": "module",
   "main": "index.js",
   "files": [
     "index.js",
     "cordis.patch.yml"
   ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "dsh-theme",
+    "deepseek-harness",
+    "background",
+    "aurora"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Alphauni-x/dsh-ds-home-bg.git"
+  },
+  "homepage": "https://github.com/Alphauni-x/dsh-ds-home-bg#readme",
+  "bugs": {
+    "url": "https://github.com/Alphauni-x/dsh-ds-home-bg/issues"
+  },
   "license": "MIT",
   "dsh": {
     "bundle": {
