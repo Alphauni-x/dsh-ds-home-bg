@@ -6,14 +6,16 @@
 
 ### Dark palette
 
-- **Base** `#0B1120` deep navy-black
+- **Base** `#0B1120` deep navy-black, on the conversation view only
+- **Surfaces stay neutral** — inputs, cards, menus, sidebar and dialogs keep the host's own dark greys (`#232324` / `#2c2c2e` / `#353638`), so the theme never leaves part of the UI tinted blue while the rest looks stock
 - **Three glows** left `#1A3870`, centre `#4A8AC4` → `#2D5F9E`, right `#2D5F9E` → `#1A3870`, breathing slowly on different cycles
 - **Grid** 44 px × 44 px, faint blue (`rgba(74,138,196,0.06)`), visible across the central 90 %
 - **Halftone whale** a square-dot whale motif tucked inside the upper-right glow, floating
 
 ### Light palette
 
-- **Base** `#EEF3FA` blue-tinted white; panels return to their native light surfaces
+- **Base** `#EEF3FA` blue-tinted white, on the conversation view only
+- **Surfaces stay neutral** — inputs, cards and menus keep the host default `#ffffff`
 - **Softer glows** `#A9C8F0` / `#D7E6F9` / `#8FB8E8`
 - **Halftone whale** in deep blue dots, barely there
 

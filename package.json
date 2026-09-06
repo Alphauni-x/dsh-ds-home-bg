@@ -1,6 +1,6 @@
 {
   "name": "dsh-ds-home-bg",
-  "version": "7.6.5",
+  "version": "7.6.6",
   "description": "Deep-navy aurora background theme for the DeepSeek Harness web UI: layered radial glows, a fine grid and a drifting halftone whale, following the host Appearance setting.",
   "type": "module",
   "main": "index.js",

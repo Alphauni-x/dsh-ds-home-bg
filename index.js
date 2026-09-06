@@ -73,9 +73,11 @@ html[data-ds-bg-mode="dark"], html[data-ds-bg-mode="dark"] body {
   --ds-toggle-ico: #cbd5e1;
   /* UI 主题 token（深色，覆盖主题插件定义） */
   --dsw-alias-bg-base: ${cfg.base} !important;
-  --dsw-alias-bg-layer-1: rgba(${c1}, 0.55) !important;
-  --dsw-alias-bg-layer-2: rgba(${c2}, 0.18) !important;
-  --dsw-alias-bg-layer-3: rgba(${c3}, 0.12) !important;
+  /* 与浅色同理：bg-base 保留主题深蓝 #0B1120（对话主页底色），
+     layer-1/2/3 恢复宿主深色默认值，不再染成蓝色。 */
+  --dsw-alias-bg-layer-1: #232324 !important;
+  --dsw-alias-bg-layer-2: #2c2c2e !important;
+  --dsw-alias-bg-layer-3: #353638 !important;
   --dsw-alias-label-primary: #e2e8f0 !important;
   --dsw-alias-label-secondary: #94a3b8 !important;
   --dsw-alias-label-tertiary: #64748b !important;
@@ -101,10 +103,17 @@ html[data-ds-bg-mode="light"], html[data-ds-bg-mode="light"] body {
   --ds-toggle-border: rgba(45, 92, 158, 0.25);
   --ds-toggle-ico: #33507a;
   /* UI 主题 token（浅色） */
+  /* 分工说明（改这里之前先看）：
+     --dsw-alias-bg-base  → 对话主页那片淡蓝底（conversation 视图根元素读的就是它），
+                            保持浅色板的 #EEF3FA，不要改成纯白。
+     --dsw-alias-bg-layer-1/2/3 → 输入框 / 卡片 / 菜单等表面。宿主浅色默认是 #ffffff。
+                            原先被覆写成半透明光晕蓝，导致同一界面里一部分表面发蓝、
+                            另一部分（不吃这三个 token 的）仍是白色，看着像坏了。
+     氛围感由装饰层负责（它在内容之上），所以这里恢复白色不影响浅色主题的光晕效果。 */
   --dsw-alias-bg-base: ${LIGHT_PALETTE.base} !important;
-  --dsw-alias-bg-layer-1: rgba(${l1}, 0.45) !important;
-  --dsw-alias-bg-layer-2: rgba(${l2}, 0.5) !important;
-  --dsw-alias-bg-layer-3: rgba(${l3}, 0.3) !important;
+  --dsw-alias-bg-layer-1: #ffffff !important;
+  --dsw-alias-bg-layer-2: #ffffff !important;
+  --dsw-alias-bg-layer-3: #ffffff !important;
   --dsw-alias-label-primary: #1e293b !important;
   --dsw-alias-label-secondary: #475569 !important;
   --dsw-alias-label-tertiary: #64748b !important;
@@ -211,7 +220,7 @@ body[data-ds-dark-theme] [class*="bg-gray-5"]:not([role="dialog"] *),
 body[data-ds-dark-theme] [class*="bg-gray-10"]:not([role="dialog"] *),
 body[data-ds-dark-theme] [class*="bg-gray-50"]:not([role="dialog"] *),
 body[data-ds-dark-theme] [class*="bg-neutral-"]:not([role="dialog"] *) {
-  background-color: rgba(11, 17, 32, 0.72) !important;
+  background-color: rgba(35, 35, 36, 0.72) !important;
   background-image: none !important;
   color: #e2e8f0 !important;
 }
@@ -232,7 +241,7 @@ body[data-ds-dark-theme] [class*="text-gray-11"]:not([role="dialog"] *) {
 [data-ds-dark-theme] [class*="Chat"]:not([role="dialog"]),
 [data-ds-dark-theme] [role="complementary"],
 [data-ds-dark-theme] [role="navigation"] {
-  background-color: rgba(11, 17, 32, 0.82) !important;
+  background-color: rgba(27, 27, 28, 0.82) !important;
   background-image: none !important;
   color: #e2e8f0 !important;
   border-color: rgba(74, 138, 196, 0.18) !important;
@@ -244,7 +253,7 @@ body[data-ds-dark-theme] [class*="text-gray-11"]:not([role="dialog"] *) {
 [data-ds-dark-theme] aside [class*="bg-"]:not(.ds-bg-switch),
 [data-ds-dark-theme] [role="complementary"] [class*="bg-"]:not(.ds-bg-switch),
 [data-ds-dark-theme] [class*="sidebar"] [class*="bg-"]:not(.ds-bg-switch) {
-  background-color: rgba(20, 32, 60, 0.72) !important;
+  background-color: rgba(44, 44, 46, 0.72) !important;
   background-image: none !important;
 }
 
@@ -320,7 +329,7 @@ html[data-ds-bg-mode="light"] body [class*="turnStatus"] {
 [data-ds-dark-theme] [class*="Message"]:not([role="dialog"] *),
 [data-ds-dark-theme] [role="dialog"],
 [data-ds-dark-theme] [role="alertdialog"] {
-  background-color: rgba(20, 32, 60, 0.92) !important;
+  background-color: rgba(35, 35, 36, 0.92) !important;
   color: #e2e8f0 !important;
   border-color: rgba(74, 138, 196, 0.22) !important;
 }
@@ -335,7 +344,7 @@ html[data-ds-bg-mode="light"] body [class*="turnStatus"] {
    class 前缀都不一致，唯一共同点是 [role="menu"]。放开选择器一次性覆盖。
    选择器用 [data-ds-bg-mode]（plugin 内部状态）保证关闭皮肤时让位 dsh 原生玻璃。 */
 [data-ds-bg-mode="dark"] [role="menu"] {
-  background-color: rgba(20, 32, 60, 1) !important;
+  background-color: rgba(44, 44, 46, 1) !important;
   background-image: none !important;
   color: #e2e8f0 !important;
   border: 1px solid rgba(74, 138, 196, 0.25) !important;
@@ -356,7 +365,7 @@ html[data-ds-bg-mode="light"] body [class*="turnStatus"] {
 [data-ds-dark-theme] [class*="Footer"]:not([role="dialog"] *):not([role="alertdialog"] *),
 [data-ds-dark-theme] [class*="header"]:not([class*="-header-icon"]):not([role="dialog"] *):not([role="alertdialog"] *),
 [data-ds-dark-theme] [class*="Header"]:not([role="dialog"] *):not([role="alertdialog"] *) {
-  background-color: rgba(8, 14, 28, 0.85) !important;
+  background-color: rgba(27, 27, 28, 0.85) !important;
   background-image: none !important;
   color: #cbd5e1 !important;
   border-color: rgba(74, 138, 196, 0.12) !important;
